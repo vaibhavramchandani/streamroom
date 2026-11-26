@@ -1,0 +1,11 @@
+**/node_modules
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.env
+**/test-results
+**/playwright-report
+**/dist
+.git
+replica/clone-screens
+web/e2e

@@ -1,0 +1,38 @@
+# Quick start:  docker compose up --build   then open http://localhost:5173
+services:
+  livekit:
+    image: livekit/livekit-server:latest
+    command: --config /etc/livekit.yaml
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml:ro
+    ports:
+      - "7880:7880"        # signalling (WebSocket)
+      - "7881:7881"        # WebRTC over TCP (fallback)
+      - "7882:7882/udp"    # WebRTC over UDP (media)
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    environment:
+      AUTH_MODE: dev
+      DEV_JWT_SECRET: ${DEV_JWT_SECRET:-docker-dev-only-secret-docker-dev-only-secret}
+      LIVEKIT_URL: ws://localhost:7880      # handed to browsers, so it is the host-side address
+      LIVEKIT_API_KEY: devkey
+      LIVEKIT_API_SECRET: secret
+      WEB_ORIGIN: http://localhost:5173
+    ports:
+      - "8000:8000"
+    depends_on:
+      - livekit
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+      args:
+        VITE_API_URL: http://localhost:8000
+    ports:
+      - "5173:80"
+    depends_on:
+      - api

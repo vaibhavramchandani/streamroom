@@ -9,6 +9,24 @@ web/       React + TypeScript + Tailwind: screens, media layer, design system (/
 replica/   planning: recon, architecture, schema, design tokens, feature matrix, build log
 ```
 
+## Quick start with Docker
+
+You only need Docker. This starts the media server, API and web app together:
+
+```bash
+docker compose up --build
+```
+
+Open <http://localhost:5173>, sign in with any name, create a room, and send the invite link to
+another browser tab. Stop with `Ctrl+C`, or `docker compose down`.
+
+- Web `:5173`, API `:8000` (docs at `/docs`), LiveKit `:7880` (TCP `:7881`, UDP `:7882`).
+- Dev keys only (`devkey` / `secret`, see `livekit.yaml`). The stack is for one machine:
+  LiveKit advertises `127.0.0.1`, so other computers on your network can't join the call.
+- Port 7880 busy? Stop any `livekit-server` you started by hand first.
+- To point at LiveKit Cloud or real auth, set the variables from `api/.env.example` under
+  `api.environment` in `docker-compose.yml`.
+
 ## Run it locally
 
 You need Python 3.11+, Node 20+ and a LiveKit server.

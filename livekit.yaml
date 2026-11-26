@@ -1,0 +1,9 @@
+# Local media server for docker compose. Dev keys only: never use these in production.
+port: 7880
+rtc:
+  tcp_port: 7881
+  udp_port: 7882       # one muxed UDP port, so compose only publishes one
+  use_external_ip: false
+  node_ip: 127.0.0.1   # what browsers on this machine are told to connect to
+keys:
+  devkey: secret
