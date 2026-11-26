@@ -345,6 +345,7 @@ export interface StreamStats {
   rttMs: number;
   lossPct: number;
   region?: string;
+  limitedBy?: string; // sender only: 'cpu' | 'bandwidth'
 }
 
 export function StatsOverlay({ s }: { s: StreamStats }) {
@@ -356,6 +357,8 @@ export function StatsOverlay({ s }: { s: StreamStats }) {
     ['Round trip', `${s.rttMs} ms`, s.rttMs < 150 ? 'ok' : s.rttMs < 300 ? 'warn' : 'bad'],
     ['Packet loss', `${s.lossPct.toFixed(1)}%`, s.lossPct < 1 ? 'ok' : s.lossPct < 5 ? 'warn' : 'bad'],
   ];
+  if (s.limitedBy === 'cpu' || s.limitedBy === 'bandwidth')
+    rows.push(['Limited by', s.limitedBy === 'cpu' ? 'processor' : 'upload speed', 'warn']);
   if (s.region) rows.push(['Server', s.region, 'ok']);
   const tone = { ok: 'text-text', warn: 'text-warning', bad: 'text-danger' };
   return (

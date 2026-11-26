@@ -53,9 +53,12 @@ export interface Notice {
   body?: string;
 }
 
-// Codec for screen share. VP9 is the most efficient for screen content; LiveKit
-// falls back to VP8 for viewers whose browser can't decode it.
-const CODEC: VideoCodec = 'vp9';
+// Codec per kind of content. VP8 costs the sender far less processor, so a game keeps its frame
+// rate while the machine is busy running it (benchmarked: VP9 and H.264 drop to 12-15 fps under
+// load where VP8 held ~20, and VP8 was never slower). VP9 packs text and slides into fewer
+// bits, so it is used for "Sharp text". LiveKit falls back to VP8 for browsers that can't decode VP9.
+const CODEC: VideoCodec = 'vp9'; // room default; each share picks its own below
+const codecFor = (content: 'motion' | 'detail'): VideoCodec => (content === 'detail' ? 'vp9' : 'vp8');
 
 function bitrateFor(height: number, fps: number) {
   if (height >= 1080) return fps >= 60 ? 6_000_000 : 4_000_000;
@@ -225,6 +228,7 @@ export function useMediaRoom(roomId: string) {
       const fps = Math.min(req.fps, caps.maxFps);
       const width = height === 1080 ? 1920 : 1280;
       const maxBitrate = bitrateFor(height, fps);
+      const videoCodec = codecFor(req.content);
       try {
         await room.localParticipant.setScreenShareEnabled(
           true,
@@ -238,10 +242,10 @@ export function useMediaRoom(roomId: string) {
             surfaceSwitching: 'include',
           },
           {
-            videoCodec: CODEC,
+            videoCodec,
             backupCodec: true,
             screenShareEncoding: { maxBitrate, maxFramerate: fps },
-            // One full-quality stream, no resolution simulcast. Measured: with extra 720p/360p
+            // One full-quality stream, no resolution simulcast. Measured with VP9: with extra 720p/360p
             // layers the sender's bandwidth estimate stalls near 1 Mbps, the 1080p layer never
             // gets bitrate, and viewers stay on 360p. VP9's temporal layers (L1T3) still let the
             // server shed frame rate for a struggling viewer without a second encode.

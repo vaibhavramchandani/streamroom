@@ -68,22 +68,30 @@ export default function RoomPage() {
   const watchedName = media.participants.find((p) => p.identity === media.watching)?.name ?? 'Stream';
   const watchedStillLive = media.participants.some((p) => p.identity === media.watching && p.live);
 
-  // Tell the streamer when the network forces quality down.
-  const warned = useRef(false);
+  // Tell the streamer why quality dropped: their upload, or their computer's encoder.
+  const warned = useRef<string | null>(null);
   useEffect(() => {
     const s = sender.stats;
     if (!s || !media.sharing) {
-      warned.current = false;
+      warned.current = null;
       return;
     }
-    if (s.limitedBy === 'bandwidth' && !warned.current) {
-      warned.current = true;
-      media.notify({
-        tone: 'warning',
-        title: `Quality lowered to ${s.height}p`,
-        body: 'Your upload speed can’t keep up. It goes back up when your connection recovers.',
-      });
-    }
+    const reason = s.limitedBy === 'bandwidth' || s.limitedBy === 'cpu' ? s.limitedBy : null;
+    if (!reason || warned.current === reason) return;
+    warned.current = reason;
+    media.notify(
+      reason === 'bandwidth'
+        ? {
+            tone: 'warning',
+            title: `Quality lowered to ${s.height}p`,
+            body: 'Your upload speed can’t keep up. It goes back up when your connection recovers.',
+          }
+        : {
+            tone: 'warning',
+            title: `Your computer can’t keep up (${s.fps} fps)`,
+            body: 'Video encoding is using all the processor it can. Try 720p or 30 fps, or close heavy apps. “Smooth motion” uses the least processor.',
+          },
+    );
   }, [sender.stats, media]);
 
   if (infoError)
