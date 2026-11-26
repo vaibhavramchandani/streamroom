@@ -1,0 +1,34 @@
+feature,area,priority,original,clone,notes
+Create or join a voice room by link,rooms,must,yes,yes,tested in browser e2e
+Voice chat in the room,rooms,must,yes,partial,mic toggle + audio playback; code written; not yet run against a live media server
+Share entire screen,capture,must,yes,partial,code written; not yet run against a live media server
+Share a single application window,capture,must,yes,partial,code written; not yet run against a live media server
+Source picker with live thumbnails,capture,must,yes,partial,our card picks screen/window/tab; the browser's own picker shows the thumbnails
+Choose resolution (720 / 1080 / source),quality,must,yes,yes,720/1080; no 'source' option yet
+Choose frame rate (15 / 30 / 60),quality,must,yes,yes,
+1080p 60fps streaming,quality,must,yes,partial,1080p60 encode settings + plan cap; code written; not yet run against a live media server
+Hardware encoding (NVENC / QuickSync / AMF / VideoToolbox),quality,must,yes,partial,the browser picks hardware encoding itself when available; we can't force it
+Bandwidth-adaptive encoding (degrade not freeze),network,must,yes,partial,simulcast layers + dynacast + 'quality lowered' warning; code written; not yet run against a live media server
+Sub-second latency (no HLS buffering),network,must,yes,partial,WebRTC end to end; latency not measured yet
+Viewer clicks LIVE tile to watch,viewing,must,yes,partial,code written; not yet run against a live media server
+Stream only sent to people actually watching,network,must,yes,partial,autoSubscribe off + dynacast; code written; not yet run against a live media server
+Low latency for viewers on other continents,network,must,partial,no,depends on LiveKit Cloud's regional relay; test overseas
+Share system or application audio,capture,should,yes,partial,"Chromium only: tab audio, or whole screen on Windows; code written; not yet run against a live media server"
+Fullscreen and pop-out viewer,viewing,should,yes,partial,fullscreen + picture in picture buttons; code written; not yet run against a live media server
+Viewer count and viewer list,viewing,should,yes,partial,who's in the call: yes; per-stream viewer count: no
+Per-room permission for who can stream,rooms,should,yes,yes,"owner/admin toggle, enforced in the LiveKit token; tested"
+Free vs paid quality gating with upsell,billing,should,yes,partial,"caps from server, locked options, upsell dialog; no billing yet"
+Stripe subscription for HD tier,billing,should,yes,no,replica-backend
+Codec negotiation (VP8 / H.264 / AV1 / HEVC),quality,should,yes,partial,VP9 with VP8 fallback
+Stream stats overlay (fps bitrate loss),viewing,should,yes,partial,from WebRTC stats; code written; not yet run against a live media server
+Multiple simultaneous streams per room (up to 50),rooms,should,yes,partial,anyone allowed can stream; you watch one at a time
+Simulcast so one slow viewer does not degrade everyone,network,could,no,partial,720p30 + 360p15 layers configured; code written; not yet run against a live media server
+4K 60fps tier,quality,could,yes,no,
+End-to-end encryption of the stream,security,could,yes,no,Discord's DAVE protocol is open and documented
+Game capture of exclusive-fullscreen games,capture,could,yes,no,use OS capture APIs only; no DLL injection
+Mobile viewing,viewing,could,yes,partial,responsive layout down to 390px; code written; not yet run against a live media server
+Mobile screen sharing,capture,could,yes,no,mobile browsers mostly can't capture the screen
+Server boost levels raising stream quality,billing,could,yes,skip,tied to Discord's server and community model
+Discord social graph (servers friends DMs),rooms,could,yes,skip,their network; not a feature you can rebuild
+Discord's 300-city edge network,network,could,yes,skip,rent this from LiveKit Cloud or Cloudflare Realtime instead
+Game capture via DLL injection,capture,could,yes,skip,flagged by anti-cheat; use OS APIs instead
