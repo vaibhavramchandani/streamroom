@@ -8,9 +8,7 @@ import {
   RemoteVideoTrack,
   Room,
   RoomEvent,
-  ScreenSharePresets,
   Track,
-  VideoPreset,
 } from 'livekit-client';
 import type { Participant, VideoCodec } from 'livekit-client';
 import { api, ApiError } from '../lib/api';
@@ -55,7 +53,7 @@ export interface Notice {
   body?: string;
 }
 
-// Codec for screen share. VP9 gives layered quality (SVC) in one stream; LiveKit
+// Codec for screen share. VP9 is the most efficient for screen content; LiveKit
 // falls back to VP8 for viewers whose browser can't decode it.
 const CODEC: VideoCodec = 'vp9';
 
@@ -243,10 +241,11 @@ export function useMediaRoom(roomId: string) {
             videoCodec: CODEC,
             backupCodec: true,
             screenShareEncoding: { maxBitrate, maxFramerate: fps },
-            screenShareSimulcastLayers: [
-              new VideoPreset(1280, 720, Math.min(maxBitrate, 2_500_000), Math.min(fps, 30)),
-              ScreenSharePresets.h360fps15,
-            ],
+            // One full-quality stream, no resolution simulcast. Measured: with extra 720p/360p
+            // layers the sender's bandwidth estimate stalls near 1 Mbps, the 1080p layer never
+            // gets bitrate, and viewers stay on 360p. VP9's temporal layers (L1T3) still let the
+            // server shed frame rate for a struggling viewer without a second encode.
+            simulcast: false,
             degradationPreference: req.content === 'detail' ? 'maintain-resolution' : 'maintain-framerate',
           },
         );

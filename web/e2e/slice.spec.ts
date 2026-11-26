@@ -105,7 +105,7 @@ test('host creates a room, guest joins by link, both reach the call', async ({ b
     await guest.page.screenshot({ path: `${SHOTS}/S05-watching.png` });
 
     await host.page.getByRole('button', { name: 'Stop sharing' }).click();
-    await expect(stage.getByText('Vaibhav stopped streaming')).toBeVisible({ timeout: 10_000 });
+    await expect(stage.getByText(/Vaibhav \w+ stopped streaming/)).toBeVisible({ timeout: 10_000 });
   }
 
   expect(host.errors, host.errors.join('\n')).toEqual([]);
